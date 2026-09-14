@@ -9,7 +9,7 @@ Part of the [Golfstack](https://www.fidelite.art/) project.
 ## Play
 
 - [cuneytinann.github.io/chessarbiter2kb](https://cuneytinann.github.io/chessarbiter2kb/)
-- [fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html](https://www.fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html) — same file, mirrored on the project site among the `L2` builds
+- [fidelite.art/special/outofLevels/L2_string_flip_noBlockedDetector.html](https://www.fidelite.art/special/outofLevels/L2_string_flip_noBlockedDetector.html) — same file, mirrored on the project site among the `L2` builds
 
 The name of the budget: 2,048 bytes. This lands 1 byte under it.
 
