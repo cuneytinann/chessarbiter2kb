@@ -1,6 +1,6 @@
 # chessarbiter2kb
 
-A two-player chess arbiter in **1,965 bytes** of one HTML file. No libraries, no build step, no server. Download `index.html`, double-click, play.
+A two-player chess arbiter in **2,047 bytes** of one HTML file. No libraries, no build step, no server. Download `index.html`, double-click, play.
 
 The board is a FEN string, not a bit set. The markup is valid HTML5 with no obsolete elements or attributes. Both of those are the point of this build.
 
@@ -10,6 +10,8 @@ Part of the [Golfstack](https://www.fidelite.art/) project.
 
 - [cuneytinann.github.io/chessarbiter2kb](https://cuneytinann.github.io/chessarbiter2kb/)
 - [fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html](https://www.fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html) — same file, mirrored on the project site among the `L2` builds
+
+The name of the budget: 2,048 bytes. This lands 1 byte under it.
 
 Click a piece, click a destination. Legal targets turn amber, the last move keeps a green outline, and the board flips to the side to move after every ply.
 
@@ -81,9 +83,9 @@ Every byte of the file, by part.
 | `d` | 274 | draw the board and the status line |
 | `A` | 257 | apply the move, then the verdict |
 | `S` | 95 | the click handler |
-| BOM, `<script>` tags, blank lines | 44 | |
+| BOM, `<script>` tags, line breaks | 126 | the layout below is worth its weight |
 
-Split another way: **928 bytes of chess, 1,037 bytes of everything else.** The rules cost about the same as the board that displays them.
+Split another way: **928 bytes of chess, 1,119 bytes of everything else.** The rules cost about the same as the board that displays them.
 
 ---
 
@@ -126,7 +128,7 @@ Six endings, two characters each.
 
 ## Reading the source
 
-The file is one comma-separated declaration chain, in dependency order. Each function leans only on the ones before it.
+The file is one comma-separated declaration chain, in dependency order. Each function leans only on the ones before it — and it is broken across 56 lines so that one line holds one rule. The four piece families sit on four consecutive lines. A move is written in five lines, in the order those five steps have to happen. Every way the game can end is a four-line ladder. None of that costs anything but whitespace: strip every line break and the file is byte for byte what it was.
 
 ```
 aliases  →  state  →  G  →  V  →  l  →  L  →  C  →  M  →  driver
