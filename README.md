@@ -9,6 +9,7 @@ Part of the [Golfstack](https://www.fidelite.art/) project.
 ## Play
 
 - [cuneytinann.github.io/chessarbiter2kb](https://cuneytinann.github.io/chessarbiter2kb/)
+- [fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html](https://www.fidelite.art/special/L2/L2_dom_string_flip_noblockedpositions.html) — same file, mirrored on the project site among the `L2` builds
 
 Click a piece, click a destination. Legal targets turn amber, the last move keeps a green outline, and the board flips to the side to move after every ply.
 
