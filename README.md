@@ -1,3 +1,5 @@
+**[English](#chessarbiter2kb)** · **[Türkçe](#turkce)**
+
 # chessarbiter2kb
 
 A two-player chess arbiter in **2,047 bytes** of one HTML file. No libraries, no build step, no server. Download `index.html`, double-click, play.
@@ -217,5 +219,232 @@ The engine was checked by running it, not by reading it.
 - [fidelite.art](https://www.fidelite.art/) — the design, the full rule coverage, and a line-by-line walkthrough
 
 ## License
+
+MIT
+
+---
+---
+
+<a id="turkce"></a>
+
+# chessarbiter2kb (Türkçe)
+
+Tek bir HTML dosyasında, **2.047 bayt** içinde yazılmış iki kişilik bir satranç hakemi. Kütüphane yok, derleme adımı yok, sunucu yok. `index.html` dosyasını indirin, çift tıklayın, oynayın.
+
+Tahta bir bit kümesi değil, bir FEN dizesidir. İşaretleme, eskimiş hiçbir öğe ya da öznitelik içermeyen geçerli HTML5'tir. Bu sürümün asıl iddiası da bu ikisidir.
+
+[Golfstack](https://www.fidelite.art/) projesinin bir parçasıdır.
+
+## Oyna
+
+- [cuneytinann.github.io/chessarbiter2kb](https://cuneytinann.github.io/chessarbiter2kb/)
+- [fidelite.art/special/outofLevels/L2_string_flip_noBlockedDetector.html](https://www.fidelite.art/special/outofLevels/L2_string_flip_noBlockedDetector.html) — aynı dosya, proje sitesinde `L2` sürümleri arasında yansıtılmış hâli
+
+Hedeflenen sınır 2.048 bayt; bu sürüm onun 1 bayt altında kalıyor.
+
+Bir taşa tıklayın, sonra hedef kareye tıklayın. Yasal hedefler kehribar rengine döner, son hamle yeşil bir çerçeveyle işaretli kalır ve her yarım hamleden (ply) sonra tahta sırası gelen tarafa döner.
+
+---
+
+## Ne için var
+
+Bu sürüm bir bayt rekoru kırmak için değil, bir sunum slaytında okunmak için var. Üç iddiada bulunuyor ve her biri kaynak kodda doğrulayabileceğiniz bir sayı.
+
+**1. Herkesin atladığı kurallar aslında en ucuz olanlardır.** Kod golfü koleksiyonlarındaki satranç programları, yarım hamle sayacını, tekrar sayacını ve yetersiz materyal testini genellikle çıkarır; gerekçe, bunların kayıt tutmaktan ibaret olduğu ve kayıt tutmanın pahalıya patladığıdır. Oysa pahalı değiller:
+
+| kural | uygulamanın tamamı | bayt |
+| --- | --- | --- |
+| Yarım hamle sayacı (`M=`) | `n=P\|b[f]>_?0:n+1` | **16** |
+| Tekrar sayacı (`R=`) | `$=R[s=b+t+e+c]=-~R[s]` | **21** |
+| Rok hakları, dört bitin tamamı | `C=i=>'20003001'[i%56]<<i/28` | **27** |
+| Yetersiz materyal, iki taraf için aynı anda | `(m=W=0,b.map((p,i)=>p>_&&(q=j(p),q<'C'?m\|=(i/8^i)%2+1:W+=q>'N'?9:q=='N')),W*2+m<3)` | **82** |
+| Oyunun bitebileceği her durum | `?'IM':$>4?'5R':n>149&&'75':l(t)?t?'B#':'W#':'SM'` | **48** |
+
+Beş kural, 194 bayt, dosyanın onda biri. Bir satranç programının pahalı kısmı hiçbir zaman kural kitabı olmadı.
+
+**2. Okunabilir bir tahta neredeyse bedavadır.** Dizi, sayısal taş kodları yerine bir FEN'in içerdiği harflerin aynısını tutar — `rnbqkbnr`, `P`, `-`. Aynı motorun sayısal sürümüyle, fonksiyon fonksiyon ve iki tarafta da aynı kural setiyle ölçüldüğünde, harflerin maliyeti **74 bayttır**: durum ve altı kural fonksiyonu genelinde 805'e karşı 880, dosyanın %4'ünden az. Karşılığında hata ayıklayıcıda doğrudan okunabilen bir tahta ve temsil ettiği pozisyona benzeyen bir tekrar anahtarı elde edilir.
+
+**3. Yalnızca kendiliğinden devreye giren kurallar.** *Talep edilmesi* gereken bir beraberlik, onu talep edecek bir oyuncuya ihtiyaç duyar; bu bir düğme gerektirir, düğme de bir etkileşim katmanı gerektirir. Bu sürümde böyle bir katman yok, bu yüzden yalnızca hakemin kendiliğinden ilan ettiği bitiş durumlarını içerir: 5 kez tekrar, 75 hamle kuralı, yetersiz materyal, mat, pat. Sayaçlar yine de çalışır ve ekranda gösterilir — `R=` değerinin 3'e çıktığını ve `M=` değerinin 99'u geçtiğini izleyebilirsiniz — yalnızca burada oyunu bitirmezler, çünkü FIDE kurallarına göre bu iki eşik hakemin ilanıyla değil, oyuncunun talebiyle devreye girer.
+
+---
+
+## Tahta bir FEN kaydıdır
+
+```js
+b=[...'rnbqkbnrpppppppp'+_.repeat(32)+'PPPPPPPPRNBQKBNR'],t=1,c=15,e=_,n=0,
+```
+
+Bu tek satır, alan alan ve FEN'in kendi sırasıyla bir FEN'dir: **tahta, sırası gelen taraf, rok hakları, geçerken alma karesi, yarım hamle sayacı.** 0. indeks a8, 63. indeks h1'dir; bu hem bir FEN'in yazıldığı hem de bir tahtanın okunduğu sıradır. Büyük harf Beyaz, küçük harf siyah, `-` boş karedir.
+
+Eksik olan tek FEN alanı tam hamle numarasıdır; eksiktir çünkü hiçbir kural onu okumaz. 50 ve 75 hamle kuralları yarım hamleleri sayar; tekrar ise hamle numarasıyla değil, bir pozisyon anahtarıyla belirlenir.
+
+Bu gösterimin motorun her köşesinde sağladığı kolaylıklar:
+
+```js
+b[i]              kare                   tek dizi erişimi
+j(b[i])           taş türü               'P', 'N', 'K' …
+b[i]<E            renk                   büyük harf Beyaz'dır
+b[i]==_           boş
+b+t+e+c           tekrar anahtarı        tahta, taraf, ep karesi, haklar
+```
+
+Son satır ikinci kez bakmaya değer: FIDE'nin iki pozisyonun aynı olup olmadığına karar vermek için kullandığı anahtar, dört değişkenin dize birleştirmesidir ve yazdırdığınızda neredeyse bir FEN gibi okunur.
+
+---
+
+## Anatomi
+
+Dosyanın her baytı, bölümlere göre.
+
+| bölüm | bayt | |
+| --- | --- | --- |
+| işaretleme ve CSS | 252 | tahta, durum satırı, renkler, yerleşim |
+| takma adlar | 59 | `_` `N` `E` `a` `j` |
+| durum | 75 | yukarıdaki FEN satırı |
+| `z`, `R` | 22 | sonuç kodu, tekrar tablosu |
+| `G` | 293 | geometri: bu taş şu kareye ulaşabilir mi |
+| `V` | 45 | bu kare saldırı altında mı |
+| `l` | 30 | bu şah şah altında mı |
+| `L` | 95 | bu hamle yasal mı — oyna, sor, geri al |
+| `C` | 28 | bir karenin hangi rok hakkını düşürdüğü |
+| `M` | 233 | hamleyi yap: sayaç, terfi, ep kurbanı, kale sıçraması, ep karesi |
+| kurulum | 163 | terfi düğmeleri ve 64 kare, üretilmiş |
+| `d` | 274 | tahtayı ve durum satırını çiz |
+| `A` | 257 | hamleyi uygula, ardından karar |
+| `S` | 95 | tıklama işleyicisi |
+| BOM, `<script>` etiketleri, satır sonları | 126 | aşağıdaki yerleşim bu maliyete değer |
+
+Başka bir şekilde bölersek: **928 bayt satranç, 1.119 bayt geri kalan her şey.** Kuralların maliyeti, onları gösteren tahtanın maliyetiyle hemen hemen aynı.
+
+---
+
+## İçinde neler var
+
+- **Tüm taş hareketleri**, aritmetikten türetilmiş. Yön tablosu yok, ofset dizisi yok. At `h*v==2`'dir; uzun menzilli taşlar kendi tür harflerini bir yetenek testi olarak kullanır.
+- **Tam yasallık kontrolü.** Kendi şahınızı şah altında bırakan bir hamle asla kabul edilmez. Her aday hamle kopyalanmış bir tahtada oynanır ve şahın durumu sorgulanır.
+- **Rok**, iki yöne de, tüm koşullarıyla: hak hâlâ duruyor, kale yolu açık, şah şah altında değil, şah saldırı altındaki bir kareden geçmiyor, şah şah altına girmiyor.
+- **Geçerken alma (en passant)**, neredeyse herkesin yanlış yaptığı kısım dahil — aşağıya bakın.
+- **Seçicili terfi.** Vezir, kale, fil, at. Siz seçene kadar tahta kilitlenir ve hamle o ana kadar tamamlanmaz.
+- **Şah, şah mat, pat**, birbirinden ayırt edilir.
+- **Yetersiz materyal**, FIDE yorumuna göre: yalnız şahlar, tek at, tek fil ve hepsi aynı renk karede duran filler ölü pozisyondur; zıt renkli filler, iki at ve fil + at değildir.
+- **5 kez tekrar** ve **75 hamle kuralı**, talep gerekmeden ilan edilir.
+- Her yarım hamleden sonra sırası gelen tarafa **tahta çevirme**.
+- **Durum satırı**: köşe koordinatları, sırası gelen taraf şah altındaysa `C!`, `M=` yarım hamle sayacı, `R=` mevcut pozisyonun kaç kez görüldüğü. Oyun bittiğinde satır sonuç koduna dönüşür.
+
+## İçinde neler yok
+
+- Saat yok.
+- Beraberlik teklifi ve beraberlik talebi yok; dolayısıyla 3 kez tekrar talebi ve 50 hamle talebi de yok. Sayaçlar çalışır ve gösterilir; oyunu yalnızca otomatik eşikler bitirir.
+- **Kilitli pozisyon** tespiti yok — FIDE 5.2.2'nin diğer yarısı; materyal yeterli olsa da piyonlar kilitlendiği için mat zaten imkânsızdır. Bu dedektör 497 bayt, yani bu boyuttaki bir dosyanın dörtte biri; bilerek çıkarıldı. Bu yüzden buradaki sonuç kodu `DP` (ölü pozisyon) değil `IM`'dir (yetersiz materyal), çünkü kod gerçekte neyin test edildiğini adlandırır. Kilitli bir pozisyon yine beraberlikle biter, sadece daha geç: tekrar ya da 75 hamle kuralı yoluyla.
+- Bot yok, geri alma yok, FEN içe/dışa aktarma yok, PGN yok.
+
+Eksiksiz FIDE hakemi için — saat, beraberlik teklifleri ve talepleri, terk, süre bitimi, ölü pozisyonlar, on beş sonuç kodu — [fidelite.art](https://www.fidelite.art/) adresine bakın.
+
+## Sonuç kodları
+
+Altı son, her biri iki karakter.
+
+| kod | anlamı |
+| --- | --- |
+| `W#` | Beyaz mat eder |
+| `B#` | Siyah mat eder |
+| `SM` | Pat |
+| `IM` | Yetersiz materyal |
+| `5R` | 5 kez tekrar |
+| `75` | 75 hamle kuralı |
+
+---
+
+## Kaynağı okumak
+
+Dosya, bağımlılık sırasına dizilmiş, virgülle ayrılmış tek bir bildirim zinciridir. Her fonksiyon yalnızca kendinden öncekilere dayanır — ve her satırda tek bir kural olacak şekilde 56 satıra bölünmüştür. Dört taş ailesi art arda dört satırda durur. Bir hamle, bu beş adımın gerçekleşmesi gereken sırayla beş satırda yazılır. Oyunun bitebileceği tüm yollar dört satırlık bir basamak dizisidir. Bunların hiçbiri boşluk karakterlerinden fazlasına mal olmaz: tüm satır sonlarını silin, dosya bayt bayt eskisiyle aynı olur.
+
+```
+takma adlar  →  durum  →  G  →  V  →  l  →  L  →  C  →  M  →  ana kod
+                geometri ── saldırı ── yasallık ── uygulama
+```
+
+`G`, her şeyi göz ardı ederek bir taşın bir kareye ulaşıp ulaşamayacağını sorar. `V`, bütün tahtaya bir karenin saldırı altında olup olmadığını sorar. `l`, bunu bir şah için sorar. `L`, yasallığı çözülebileceği tek şekilde çözer — hamleyi kopyalanmış bir tahtada oynar, `l`'ye sorar ve tahtayı geri koyar. `M` bir hamleyi yazar ve başka hiçbir şey yapmaz, çünkü `L` onu deneme olarak çağırır. Kalıcı bir şey yapan tek fonksiyon `A`'dır.
+
+Bağımlılığın geriye doğru aktığı iki yer var ve ikisi de koddan değil, satranç kurallarından kaynaklanır. `G`, `V`'yi çağırır; çünkü şahın geçtiği karenin saldırı altında olup olmadığı sorulmadan rok değerlendirilemez. `M`, `L`'yi çağırır; çünkü geçerken alma karesi yalnızca alma gerçekten yasalsa yazılabilir.
+
+### Seçme satırlar
+
+```js
+d=h|v                      hamlenin kaç kare kapsadığı, dallanma olmadan
+k=(f-i)/d                  adım vektörü: ±1, ±8, ±7, ±9, tek bir bölmeyle
+h*v==2                     at: 2 veren tek tamsayı çiftleri 1×2 ve 2×1'dir
+y%5==1                     iki piyon başlangıç sırası — mod 5'te kalanı 1 olan tek sıralar
+f%56<8                     son sıra, iki renk için de
+f^8                        geçerken alma kurbanı, yönü XOR'un kendisiyle bulunur
+i+3.5*k-.5                 rok kalesinin karesi, şah ve vezir kanadı tek ifadede
+h==v&P<'R'                 çapraz gidenler: fil ve vezir geçer, kale elenir, alfabeye göre
+P>'B'                      düz gidenler: kale ve vezir geçer, fil elenir
+W*2+m<3                    yetersiz materyal tablosunun tamamı, tek karşılaştırma
+-~R[s]                     ilk kez görülen pozisyon 1 değerini alır, varsayılan atama yok
+'-BKNPQR'.search(j(b[u]))  harften taş simgesine, map yok, switch yok
+```
+
+Bunların en şıkı uzun menzilli taşlarla ilgili olanlardır. Alfabede `B < Q < R`, yani `P<'R'` tam olarak "çapraz gidebilir", `P>'B'` ise tam olarak "düz gidebilir" demektir. Vezir için ayrı bir dal yazmaya gerek yoktur; o, iki testi de geçen harften ibarettir.
+
+### Geçerken almanın inceliği
+
+Bu, tüm kural kitabındaki en öğretici hatadır ve `M`'nin yasallık katmanına geri uzanmasının nedenidir:
+
+```js
+e=P&d>9&&(e=q,[f-1,f+1].some(x=>b[x]=='Pp'[+g]&&L(x,e)))?e:_
+```
+
+Bir piyon az önce iki kare ilerledi. Basit bir uygulama geçerken alma karesini hemen yazar. Bu uygulama ise onu geçici olarak yazar, sonra komşu bir rakip piyonun bu almayı *gerçekten ve yasal olarak* yapıp yapamayacağını kontrol eder — yapamıyorsa `-` değerine geri döner.
+
+Fark, almanın kendisinde hiçbir zaman ortaya çıkmaz: alma yasal değilse hamle üreteci onu her iki durumda da reddeder. Fark **tekrar sayacında** ortaya çıkar, çünkü `e` pozisyon anahtarının bir parçasıdır. FIDE iki pozisyonu ancak ikisinde de aynı hamleler mümkünse — geçerken alma dahil — aynı sayar. Kimsenin kullanamayacağı bir kare yazarsanız aynı pozisyon iki farklı anahtar altına düşer ve tekrar beraberliği geç devreye girer ya da hiç girmez. Berabere bitmesi gereken bir oyun bu yüzden kaybedilebilir.
+
+Klasik örnek: Siyah g7–g5 oynar ve f5'teki beyaz piyon, f8'deki bir kale tarafından şahına karşı açmaza alınmıştır. `fxg6` hattı açıp şahı açıkta bırakacağından alma yasal değildir, dolayısıyla kare hiç yazılmaz. Doğru çalışan bir sayaçla yalnızca doğruymuş gibi görünen bir sayaç arasındaki fark, bu 60 bayttır.
+
+---
+
+## Hile değil, standart
+
+Bayt golfü yapılmış HTML genellikle eskimiş işaretlemeyle çalışır, çünkü eskimiş işaretleme daha kısadır: `<center>`, `bgcolor`, hücrelerde `align` ve `width`, `cellspacing`, quirks mode. Bu sürüm bunların hiçbirini yapmaz. Her birinin maliyeti ölçüldü, ardından hepsi CSS'e taşındı.
+
+Dosya **sıfır hata ve sıfır uyarıyla doğrulanır** — iddia edilmedi, W3C Nu doğrulayıcısıyla kontrol edildi. Yalnızca dosya da değil: tahta, terfi seçici ve 64 karenin tamamı çalışma zamanında üretildiği için, sayfanın gerçekte oluşturduğu DOM'un bir anlık görüntüsü ayrı bir belge olarak doğrulandı. İkisi de temiz çıktı.
+
+| | |
+| --- | --- |
+| eskimiş öğeler | yok |
+| eskimiş öznitelikler | yok |
+| quirks mode | hayır — standart mod bilerek korunur |
+| yukarıdakilerin tamamının maliyeti | eski işaretlemeyle yazılmış aynı sürüme karşı **45 bayt** |
+
+Kural dışı gibi görünen bazı şeyler aslında tamamen kurallara uygundur. `</p>`, `</td>`, `</tr>` ve `</html>` atlanır; `<html>`, `<head>` ve `<body>` hiçbir zaman öğe olarak yazılmaz — bunların hepsi geçerli HTML'dir, kapanış etiketleri spesifikasyona göre isteğe bağlıdır. `</button>` **yazılır**, çünkü o isteğe bağlı değildir. Tırnaksız öznitelik değerleri de, değer boşluk veya tırnak içermediği sürece geçerlidir.
+
+Kodlama bir `<meta charset>` öğesiyle değil, bir **UTF-8 BOM** ile bildirilir: yirmi bayta karşı üç bayt; ayrıca BOM, HTML kodlama algılama algoritmasının hem meta öğesinden hem de HTTP başlığından önce gelen ilk adımıdır. Doğrulayıcı onu bildirim olarak kabul eder. Bu dosyayı düzenlerseniz editörünüzün BOM'u koruduğundan emin olun, yoksa taş karakterleri bozulur.
+
+Standart modu tercih etmek de bir heves meselesi değildir. Quirks mode'da `width` hücrenin iç boşluğunu da kapsar, kareler 66 genişlik ve 68 yükseklikte çıkar ve tahta kare olmaktan çıkar. Doctype 15 bayta mal olur ve tahtayı kare tutar.
+
+Taş karakterleri Unicode `U+265A`–`U+265F` aralığındadır ve Beyaz için CSS ile yeniden renklendirilir. Görsel yok, yazı tipi indirme yok, CDN isteği yok.
+
+---
+
+## Doğrulama
+
+Motor, okunarak değil çalıştırılarak kontrol edildi.
+
+- Başlangıç pozisyonundan **perft**: 1–3 derinliklerinde 20 / 400 / 8.902. Kiwipete (CPW pozisyon 2): 48 / 2.039. CPW pozisyon 3: 14 / 191 / 2.812.
+- **Geçerken alma**, dört durumun tamamı: açmazdaki alan piyon (kare yazılmaz), yasal alan piyon (yazılır ve tekrar anahtarında yer alır), alan piyon yok, alan piyon yanlış hatta.
+- **Her sonuç kodu** gerçek bir pozisyondan yeniden üretildi — mat, pat, her materyal kombinasyonuyla yetersiz materyal, 16 yarım hamlede 5 kez tekrar, `M=150`'de 75 hamle kuralı.
+- **Görüntüleme**, tam bir oyun boyunca, her seçimde ve her yarım hamlede önceki sürümle kare kare karşılaştırıldı — karakter, renk, arka plan, çerçeve, durum satırı.
+- Sonuna kadar **rastgele kendi kendine oyun**, defalarca; her yarım hamleden sonra tahta dizisinin bozulup bozulmadığı kontrol edildi.
+- **İşaretleme**, W3C Nu doğrulayıcısıyla doğrulandı; hem kaynak dosya hem de çalışma zamanı DOM'unun anlık görüntüsü.
+
+---
+
+## İlgili
+
+- [FideLite](https://github.com/cuneytinann/FideLite) — eksiksiz hakem: saat, beraberlik teklifleri ve talepleri, terk, süre bitimi, ölü pozisyonlar, on beş sonuç kodu, sekiz ön yüz
+- [chess1023byte](https://github.com/cuneytinann/chess1023byte) — ölçeğin öbür ucu: yalnızca temel kurallar, paketlenmiş, 1.023 baytta
+- [fidelite.art](https://www.fidelite.art/) — tasarım, kuralların eksiksiz kapsamı ve satır satır açıklama
+
+## Lisans
 
 MIT
