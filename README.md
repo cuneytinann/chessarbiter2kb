@@ -214,9 +214,8 @@ The engine was checked by running it, not by reading it.
 
 ## Related
 
-- [FideLite](https://github.com/cuneytinann/FideLite) — the full arbiter: clock, draw offers and claims, resignation, flag fall, dead positions, fifteen result codes, eight front ends
 - [chess1023byte](https://github.com/cuneytinann/chess1023byte) — the other end of the scale: the core rules alone, packed, in 1,023 bytes
-- [fidelite.art](https://www.fidelite.art/) — the design, the full rule coverage, and a line-by-line walkthrough
+- [fidelite.art](https://www.fidelite.art/) — the full arbiter: clock, draw offers and claims, resignation, flag fall, dead positions, fifteen result codes, eight front ends
 
 ## License
 
@@ -441,10 +440,8 @@ Motor, okunarak değil çalıştırılarak kontrol edildi.
 
 ## İlgili
 
-- [FideLite](https://github.com/cuneytinann/FideLite) — eksiksiz hakem: saat, beraberlik teklifleri ve talepleri, terk, süre bitimi, ölü pozisyonlar, on beş sonuç kodu, sekiz ön yüz
 - [chess1023byte](https://github.com/cuneytinann/chess1023byte) — ölçeğin öbür ucu: yalnızca temel kurallar, paketlenmiş, 1.023 baytta
-- [fidelite.art](https://www.fidelite.art/) — tasarım, kuralların eksiksiz kapsamı ve satır satır açıklama
-
+- [fidelite.art](https://www.fidelite.art/) — eksiksiz hakem: saat, beraberlik teklifleri ve talepleri, terk, süre bitimi, ölü pozisyonlar, on beş sonuç kodu, sekiz ön yüz
 ## Lisans
 
 MIT
