@@ -2,7 +2,7 @@
 
 # chessarbiter2kb
 
-A two-player chess arbiter in **2,000 bytes** of one HTML file, and its twin in **1,907 bytes**. No libraries, no build step, no server, no packer. Download a file, double-click, play.
+A two-player chess arbiter in **2,000 bytes** of one HTML file, and its twin in **1,903 bytes**. No libraries, no build step, no server, no packer. Download a file, double-click, play.
 
 Both files enforce the same rules. `index.html` stores the board as letters, the way a FEN does. `hexadecimal.html` stores it as numbers. Put side by side, they are a small course in how few characters the rules of chess need, and in what a choice of representation costs.
 
@@ -195,14 +195,14 @@ Choosing an encoding that packs colour, capability and order into one small inte
 | `M` make move | 230 | 218 | +12 |
 | `d` draw | 287 | 269 | +18 |
 | `A` apply and judge | 268 | 234 | +34 |
-| everything else | 635 | 635 | 0 |
-| **file** | **2,000** | **1,907** | **+93** |
+| everything else | 635 | 631 | +4 |
+| **file** | **2,000** | **1,903** | **+97** |
 
 - **The starting position is longer as numbers:** the letter board spells itself; the numeric one needs a hexadecimal literal and a conversion.
 - **`L` differs by design, not by encoding.** On the letter board `L(i,u)` answers whether one move is legal. On the numeric board `L(i)` returns the list of legal targets, which lets `d` build the highlight once per frame (`s=L(i)`) and `M` ask `~L(x)[Q](e)`.
-- **Everywhere else the letters pay:** +122 bytes across the aliases, `G`, `V`, `M`, `d` and `A` — every colour test, emptiness test and case conversion in the table above. Against the 29 bytes the numbers lose, that nets +93.
+- **Everywhere else the letters pay:** +122 bytes across the aliases, `G`, `V`, `M`, `d` and `A` — every colour test, emptiness test and case conversion in the table above. Against the 29 bytes the numbers lose, that nets +93 — and four more from the markup, where the letter file never wrote a paragraph end tag the parser does not need.
 
-What 93 bytes buy on the letter side: a board you can read straight out of a debugger, and a repetition key that looks like the position it stands for.
+What 97 bytes buy on the letter side: a board you can read straight out of a debugger, and a repetition key that looks like the position it stands for.
 
 ## Lesson 6 — Standards, not tricks
 
@@ -233,7 +233,7 @@ Every byte of both files, by part.
 
 | part | `index.html` | `hexadecimal.html` | |
 | --- | --- | --- | --- |
-| markup and CSS | 277 | 281 | board, status line, picker, colours, layout |
+| markup and CSS | 277 | 277 | board, status line, picker, colours, layout |
 | `<script>` tags | 17 | 17 | |
 | aliases | 54 | 34 | `N` `a` `U` `_` `j` · `N` `a` `Q` |
 | state | 70 | 84 | the FEN fields |
@@ -249,9 +249,9 @@ Every byte of both files, by part.
 | `S` | 91 | 93 | the click handler |
 | `d()` | 3 | 3 | first draw |
 | commas, semicolons, line breaks | 42 | 40 | the layout is worth its weight |
-| **total** | **2,000** | **1,907** | |
+| **total** | **2,000** | **1,903** | |
 
-Split another way: the rules — state, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — take **1,071** and **1,016** bytes; the page that shows them — markup, CSS, script tags, setup, `d`, `S` and the first draw — takes **833** and **817**. The rest is aliases and separators. The rulebook and the board that displays it cost about the same.
+Split another way: the rules — state, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — take **1,071** and **1,016** bytes; the page that shows them — markup, CSS, script tags, setup, `d`, `S` and the first draw — takes **833** and **813**. The rest is aliases and separators. The rulebook and the board that displays it cost about the same.
 
 ---
 
@@ -285,7 +285,7 @@ MIT
 
 # chessarbiter2kb (Türkçe)
 
-Tek bir HTML dosyasında **2.000 bayt** içinde yazılmış iki kişilik bir satranç hakemi ve onun **1.907 baytlık** ikizi. Kütüphane yok, derleme adımı yok, sunucu yok, paketleyici yok. Bir dosyayı indirin, çift tıklayın, oynayın.
+Tek bir HTML dosyasında **2.000 bayt** içinde yazılmış iki kişilik bir satranç hakemi ve onun **1.903 baytlık** ikizi. Kütüphane yok, derleme adımı yok, sunucu yok, paketleyici yok. Bir dosyayı indirin, çift tıklayın, oynayın.
 
 İki dosya da aynı kuralları uygular. `index.html` tahtayı bir FEN gibi harflerle tutar; `hexadecimal.html` sayılarla. Yan yana okunduklarında, satranç kurallarının ne kadar az karakterle yazılabileceğine ve bir veri gösterimi seçiminin neye mal olduğuna dair küçük bir derstirler.
 
@@ -478,14 +478,14 @@ Rengi, yeteneği ve sırayı tek bir küçük tam sayıya yükleyen bir kodlama 
 | `M` hamle yazma | 230 | 218 | +12 |
 | `d` çizim | 287 | 269 | +18 |
 | `A` uygula ve hükmet | 268 | 234 | +34 |
-| geri kalan her şey | 635 | 635 | 0 |
-| **dosya** | **2.000** | **1.907** | **+93** |
+| geri kalan her şey | 635 | 631 | +4 |
+| **dosya** | **2.000** | **1.903** | **+97** |
 
 - **Başlangıç konumu sayılarla daha uzundur:** harf tahtası kendini heceler; sayısal tahta onaltılık bir sabit ve bir dönüşüm ister.
 - **`L` kodlama yüzünden değil, tasarım yüzünden farklıdır.** Harf tahtasında `L(i,u)` tek bir hamlenin yasal olup olmadığını yanıtlar. Sayısal tahtada `L(i)` yasal hedeflerin listesini döndürür; bu da `d`'nin vurgulamayı her çizimde bir kez kurmasını (`s=L(i)`) ve `M`'nin `~L(x)[Q](e)` diye sormasını sağlar.
-- **Diğer her yerde harfler öder:** takma adlar, `G`, `V`, `M`, `d` ve `A` boyunca +122 bayt — yukarıdaki tablodaki her renk testi, boşluk testi ve büyük harfe çevirme. Sayıların kaybettiği 29 bayt düşülünce net fark +93'tür.
+- **Diğer her yerde harfler öder:** takma adlar, `G`, `V`, `M`, `d` ve `A` boyunca +122 bayt — yukarıdaki tablodaki her renk testi, boşluk testi ve büyük harfe çevirme. Sayıların kaybettiği 29 bayt düşülünce net fark +93 olur — ve işaretlemeden dört bayt daha gelir: harf dosyası, ayrıştırıcının zaten gerek duymadığı bir paragraf kapanış etiketini hiç yazmamıştı.
 
-Harf tarafında 93 baytın karşılığı: bir hata ayıklayıcıdan doğrudan okunabilen bir tahta ve temsil ettiği konuma benzeyen bir tekrar anahtarı.
+Harf tarafında 97 baytın karşılığı: bir hata ayıklayıcıdan doğrudan okunabilen bir tahta ve temsil ettiği konuma benzeyen bir tekrar anahtarı.
 
 ## Ders 6 — Hile değil, standart
 
@@ -516,7 +516,7 @@ Taş karakterleri Unicode `U+265A`–`U+265F` aralığındadır ve Beyaz için C
 
 | parça | `index.html` | `hexadecimal.html` | |
 | --- | --- | --- | --- |
-| işaretleme ve CSS | 277 | 281 | tahta, durum satırı, seçici, renkler, yerleşim |
+| işaretleme ve CSS | 277 | 277 | tahta, durum satırı, seçici, renkler, yerleşim |
 | `<script>` etiketleri | 17 | 17 | |
 | takma adlar | 54 | 34 | `N` `a` `U` `_` `j` · `N` `a` `Q` |
 | durum | 70 | 84 | FEN alanları |
@@ -532,9 +532,9 @@ Taş karakterleri Unicode `U+265A`–`U+265F` aralığındadır ve Beyaz için C
 | `S` | 91 | 93 | tıklama işleyicisi |
 | `d()` | 3 | 3 | ilk çizim |
 | virgüller, noktalı virgüller, satır sonları | 42 | 40 | bu yerleşim maliyetine değer |
-| **toplam** | **2.000** | **1.907** | |
+| **toplam** | **2.000** | **1.903** | |
 
-Başka bir açıdan bölünce: kurallar — durum, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — **1.071** ve **1.016** bayt tutar; onları gösteren sayfa — işaretleme, CSS, betik etiketleri, kurulum, `d`, `S` ve ilk çizim — **833** ve **817**. Geri kalanı takma adlar ve ayraçlardır. Kural kitabı ile onu gösteren tahta aşağı yukarı aynı tutar.
+Başka bir açıdan bölünce: kurallar — durum, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — **1.071** ve **1.016** bayt tutar; onları gösteren sayfa — işaretleme, CSS, betik etiketleri, kurulum, `d`, `S` ve ilk çizim — **833** ve **813**. Geri kalanı takma adlar ve ayraçlardır. Kural kitabı ile onu gösteren tahta aşağı yukarı aynı tutar.
 
 ---
 
