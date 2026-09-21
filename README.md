@@ -2,7 +2,7 @@
 
 # chessarbiter2kb
 
-A two-player chess arbiter in **2,000 bytes** of one HTML file, and its twin in **1,909 bytes**. No libraries, no build step, no server, no packer. Download a file, double-click, play.
+A two-player chess arbiter in **1,999 bytes** of one HTML file, and its twin in **1,908 bytes**. No libraries, no build step, no server, no packer. Download a file, double-click, play.
 
 Both files enforce the same rules. `index.html` stores the board as letters, the way a FEN does. `hexadecimal.html` stores it as numbers. Put side by side, they are a small course in how few characters the rules of chess need, and in what a choice of representation costs.
 
@@ -128,15 +128,15 @@ Legality is not a second move generator. It is one trick:
 The dependency runs backwards in exactly two places, and both come from the rules, not from the code. `G` calls `V` because castling cannot be judged without asking whether the king's crossing square is attacked. `M` calls `L` because the en passant square may only be written if the capture is genuinely legal:
 
 ```js
-e=P&d>9&&(e=q,[f-1,f+1].some(x=>b[x]=='Pp'[t]&&L(x,e)))?e:_      // letters
-e=P&d>9&&(e=q,[f-1,f+1].some(x=>b[x]==17-p&&~L(x)[Q](e)))?e:-1   // numbers: 17-p is the opposing pawn
+e=P&d>9&(e=q,[f-1,f+1].some(x=>b[x]=='Pp'[t]&&L(x,e)))?e:_      // letters
+e=P&d>9&(e=q,[f-1,f+1].some(x=>b[x]==17-p&&~L(x)[Q](e)))?e:-1   // numbers: 17-p is the opposing pawn
 ```
 
 A pawn has just moved two squares. The naive version writes the en passant square at once. This one writes it provisionally, asks whether a neighbouring enemy pawn can *legally* capture there, and reverts if not.
 
 The difference never shows in the capture itself — an illegal capture is rejected by the move generator either way. It shows in the **repetition counter**, because `e` is part of the position key. FIDE treats two positions as the same only if the same moves are available in both, en passant included. Record a square nobody can use, and one position lands under two keys: a repetition draw fires late, or never.
 
-The classic case: Black plays g7–g5 while the white pawn on f5 is pinned to its king on f1 by a rook on f8. `fxg6` would expose the king, so the capture is illegal, so the square is never recorded. The check costs **48 bytes** on the letter board and **50** on the numeric one, over the naive `e=P&d>9?q:_`. It also absorbs the edge case of `[f-1,f+1]`: a neighbour index that wraps onto the other side of the board holds a pawn that `G` rejects, so the square stays unset.
+The classic case: Black plays g7–g5 while the white pawn on f5 is pinned to its king on f1 by a rook on f8. `fxg6` would expose the king, so the capture is illegal, so the square is never recorded. The check costs **47 bytes** on the letter board and **49** on the numeric one, over the naive `e=P&d>9?q:_`. It also absorbs the edge case of `[f-1,f+1]`: a neighbour index that wraps onto the other side of the board holds a pawn that `G` rejects, so the square stays unset.
 
 ## Lesson 4 — The rules everyone skips are cheap
 
@@ -175,7 +175,7 @@ The same questions, asked of each board:
 | --- | --- | --- | --- | --- |
 | empty square | `b[i]==_` | 7 | `!b[i]` | 5 |
 | occupied square | `b[f]>_` | 6 | `b[f]` | 4 |
-| a candidate attacker of side `s` (in `V`) | `p>_&p<U!=s` | 10 | `p%2^s` | 5 |
+| a candidate attacker of side `s` (in `V`) | `p>_&p<U!=s` | 10 | `p&1^s` | 5 |
 | is it a knight | `P=='N'` | 6 | `P>5` | 3 |
 | is it a pawn (in `M`) | `j(p)=='P'` | 9 | `p>>1==4` | 7 |
 | the promoted piece | `t?j(u):u` | 8 | `u*2+t` | 5 |
@@ -194,11 +194,11 @@ Choosing an encoding that packs colour, capability and order into one small inte
 | `G` geometry | 297 | 273 | +24 |
 | `V` attack | 64 | 50 | +14 |
 | `L` legality | 95 | 110 | −15 |
-| `M` make move | 230 | 218 | +12 |
+| `M` make move | 229 | 217 | +12 |
 | `d` draw | 287 | 269 | +18 |
 | `A` apply and judge | 268 | 234 | +34 |
 | everything else | 635 | 631 | +4 |
-| **file** | **2,000** | **1,909** | **+91** |
+| **file** | **1,999** | **1,908** | **+91** |
 
 - **The starting position is longer as numbers:** both boards spell themselves, but the numeric one pays for a `.map()` afterwards to turn its digits into numbers.
 - **`L` differs by design, not by encoding.** On the letter board `L(i,u)` answers whether one move is legal. On the numeric board `L(i)` returns the list of legal targets, which lets `d` build the highlight once per frame (`s=L(i)`) and `M` ask `~L(x)[Q](e)`.
@@ -244,16 +244,16 @@ Every byte of both files, by part.
 | `V` | 64 | 50 | is this square attacked |
 | `L` | 95 | 110 | is this move legal — play it, ask, take it back |
 | `C` | 27 | 27 | which castling right a square forfeits |
-| `M` | 230 | 218 | clock, promotion, en passant victim, rook hop, en passant square |
+| `M` | 229 | 217 | clock, promotion, en passant victim, rook hop, en passant square |
 | setup | 158 | 154 | promotion buttons and the 64 cells, generated |
 | `d` | 287 | 269 | draw the board and the status line |
 | `A` | 268 | 234 | apply the move, then the verdict |
 | `S` | 91 | 93 | the click handler |
 | `d()` | 3 | 3 | first draw |
 | commas, semicolons, line breaks | 42 | 40 | the layout is worth its weight |
-| **total** | **2,000** | **1,909** | |
+| **total** | **1,999** | **1,908** | |
 
-Split another way: the rules — state, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — take **1,071** and **1,022** bytes; the page that shows them — markup, CSS, script tags, setup, `d`, `S` and the first draw — takes **833** and **813**. The rest is aliases and separators. The rulebook and the board that displays it cost about the same.
+Split another way: the rules — state, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — take **1,070** and **1,021** bytes; the page that shows them — markup, CSS, script tags, setup, `d`, `S` and the first draw — takes **833** and **813**. The rest is aliases and separators. The rulebook and the board that displays it cost about the same.
 
 ---
 
@@ -287,7 +287,7 @@ MIT
 
 # chessarbiter2kb (Türkçe)
 
-Tek bir HTML dosyasında **2.000 bayt** içinde yazılmış iki kişilik bir satranç hakemi ve onun **1.909 baytlık** ikizi. Kütüphane yok, derleme adımı yok, sunucu yok, paketleyici yok. Bir dosyayı indirin, çift tıklayın, oynayın.
+Tek bir HTML dosyasında **1.999 bayt** içinde yazılmış iki kişilik bir satranç hakemi ve onun **1.908 baytlık** ikizi. Kütüphane yok, derleme adımı yok, sunucu yok, paketleyici yok. Bir dosyayı indirin, çift tıklayın, oynayın.
 
 İki dosya da aynı kuralları uygular. `index.html` tahtayı bir FEN gibi harflerle tutar; `hexadecimal.html` sayılarla. Yan yana okunduklarında, satranç kurallarının ne kadar az karakterle yazılabileceğine ve bir veri gösterimi seçiminin neye mal olduğuna dair küçük bir derstirler.
 
@@ -413,15 +413,15 @@ Yasallık ikinci bir hamle üreticisi değildir, tek bir numaradır:
 Bağımlılık tam iki yerde geriye doğru akar ve ikisi de koddan değil kurallardan gelir. `G`, `V`'yi çağırır; çünkü rok, şahın geçtiği karenin saldırı altında olup olmadığı sorulmadan değerlendirilemez. `M`, `L`'yi çağırır; çünkü geçerken alma karesi ancak alış gerçekten yasalsa yazılabilir:
 
 ```js
-e=P&d>9&&(e=q,[f-1,f+1].some(x=>b[x]=='Pp'[t]&&L(x,e)))?e:_      // harfler
-e=P&d>9&&(e=q,[f-1,f+1].some(x=>b[x]==17-p&&~L(x)[Q](e)))?e:-1   // sayılar: 17-p karşı tarafın piyonu
+e=P&d>9&(e=q,[f-1,f+1].some(x=>b[x]=='Pp'[t]&&L(x,e)))?e:_      // harfler
+e=P&d>9&(e=q,[f-1,f+1].some(x=>b[x]==17-p&&~L(x)[Q](e)))?e:-1   // sayılar: 17-p karşı tarafın piyonu
 ```
 
 Bir piyon az önce iki kare ilerledi. Saf uygulama geçerken alma karesini hemen yazar. Bu uygulama kareyi geçici olarak yazar, komşu bir rakip piyonun oraya *yasal olarak* alış yapıp yapamayacağını sorar, yapamıyorsa geri alır.
 
 Fark alışın kendisinde hiç görünmez: yasadışı bir alışı hamle üreticisi zaten reddeder. Fark **tekrar sayacında** görünür, çünkü `e` konum anahtarının parçasıdır. FIDE iki konumu ancak ikisinde de aynı hamleler — geçerken alma dahil — mümkünse aynı sayar. Kimsenin kullanamayacağı bir kare yazarsanız aynı konum iki farklı anahtar altına düşer: tekrar beraberliği geç gelir ya da hiç gelmez.
 
-Klasik örnek: Siyah g7–g5 oynar; f5'teki beyaz piyon, f8'deki kale tarafından f1'deki şahına açmazlanmıştır. `fxg6` şahı açığa çıkarır, alış yasadışıdır, kare hiç yazılmaz. Bu kontrol, saf `e=P&d>9?q:_` biçimine göre harf tahtasında **48**, sayısal tahtada **50 bayt** tutar. `[f-1,f+1]`'in kenar durumunu da kendiliğinden çözer: tahtanın öbür kenarına sarılan bir komşu dizindeki piyonu `G` reddeder ve kare yazılmadan kalır.
+Klasik örnek: Siyah g7–g5 oynar; f5'teki beyaz piyon, f8'deki kale tarafından f1'deki şahına açmazlanmıştır. `fxg6` şahı açığa çıkarır, alış yasadışıdır, kare hiç yazılmaz. Bu kontrol, saf `e=P&d>9?q:_` biçimine göre harf tahtasında **47**, sayısal tahtada **49 bayt** tutar. `[f-1,f+1]`'in kenar durumunu da kendiliğinden çözer: tahtanın öbür kenarına sarılan bir komşu dizindeki piyonu `G` reddeder ve kare yazılmadan kalır.
 
 ## Ders 4 — Herkesin atladığı kurallar ucuzdur
 
@@ -460,7 +460,7 @@ Aynı sorular, iki tahtaya ayrı ayrı:
 | --- | --- | --- | --- | --- |
 | boş kare | `b[i]==_` | 7 | `!b[i]` | 5 |
 | dolu kare | `b[f]>_` | 6 | `b[f]` | 4 |
-| `s` tarafına saldırabilecek aday (`V` içinde) | `p>_&p<U!=s` | 10 | `p%2^s` | 5 |
+| `s` tarafına saldırabilecek aday (`V` içinde) | `p>_&p<U!=s` | 10 | `p&1^s` | 5 |
 | at mı | `P=='N'` | 6 | `P>5` | 3 |
 | piyon mu (`M` içinde) | `j(p)=='P'` | 9 | `p>>1==4` | 7 |
 | terfi eden taş | `t?j(u):u` | 8 | `u*2+t` | 5 |
@@ -479,11 +479,11 @@ Rengi, yeteneği ve sırayı tek bir küçük tam sayıya yükleyen bir kodlama 
 | `G` geometri | 297 | 273 | +24 |
 | `V` saldırı | 64 | 50 | +14 |
 | `L` yasallık | 95 | 110 | −15 |
-| `M` hamle yazma | 230 | 218 | +12 |
+| `M` hamle yazma | 229 | 217 | +12 |
 | `d` çizim | 287 | 269 | +18 |
 | `A` uygula ve hükmet | 268 | 234 | +34 |
 | geri kalan her şey | 635 | 631 | +4 |
-| **dosya** | **2.000** | **1.909** | **+91** |
+| **dosya** | **1.999** | **1.908** | **+91** |
 
 - **Başlangıç konumu sayılarla daha uzundur:** iki tahta da kendini heceler, ama sayısal olan rakamlarını sayıya çevirmek için arkasından bir `.map()` öder.
 - **`L` kodlama yüzünden değil, tasarım yüzünden farklıdır.** Harf tahtasında `L(i,u)` tek bir hamlenin yasal olup olmadığını yanıtlar. Sayısal tahtada `L(i)` yasal hedeflerin listesini döndürür; bu da `d`'nin vurgulamayı her çizimde bir kez kurmasını (`s=L(i)`) ve `M`'nin `~L(x)[Q](e)` diye sormasını sağlar.
@@ -529,16 +529,16 @@ Taş karakterleri Unicode `U+265A`–`U+265F` aralığındadır ve Beyaz için C
 | `V` | 64 | 50 | bu kare saldırı altında mı |
 | `L` | 95 | 110 | bu hamle yasal mı — oyna, sor, geri al |
 | `C` | 27 | 27 | bir karenin hangi rok hakkını kaybettirdiği |
-| `M` | 230 | 218 | sayaç, terfi, geçerken alınan piyon, kale atlaması, geçerken alma karesi |
+| `M` | 229 | 217 | sayaç, terfi, geçerken alınan piyon, kale atlaması, geçerken alma karesi |
 | kurulum | 158 | 154 | terfi düğmeleri ve 64 hücre, üretilmiş |
 | `d` | 287 | 269 | tahtayı ve durum satırını çiz |
 | `A` | 268 | 234 | hamleyi uygula, sonra hükmü ver |
 | `S` | 91 | 93 | tıklama işleyicisi |
 | `d()` | 3 | 3 | ilk çizim |
 | virgüller, noktalı virgüller, satır sonları | 42 | 40 | bu yerleşim maliyetine değer |
-| **toplam** | **2.000** | **1.909** | |
+| **toplam** | **1.999** | **1.908** | |
 
-Başka bir açıdan bölünce: kurallar — durum, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — **1.071** ve **1.022** bayt tutar; onları gösteren sayfa — işaretleme, CSS, betik etiketleri, kurulum, `d`, `S` ve ilk çizim — **833** ve **813**. Geri kalanı takma adlar ve ayraçlardır. Kural kitabı ile onu gösteren tahta aşağı yukarı aynı tutar.
+Başka bir açıdan bölünce: kurallar — durum, `z`/`R`, `G`, `V`, `L`, `C`, `M`, `A` — **1.070** ve **1.021** bayt tutar; onları gösteren sayfa — işaretleme, CSS, betik etiketleri, kurulum, `d`, `S` ve ilk çizim — **833** ve **813**. Geri kalanı takma adlar ve ayraçlardır. Kural kitabı ile onu gösteren tahta aşağı yukarı aynı tutar.
 
 ---
 
